@@ -1,4 +1,4 @@
-# Day 3 Notes - SQL Foundations
+# Day 3 Notes - Intermediate SQL aggregations  + challenge query
 
 Todays concepts:
 
