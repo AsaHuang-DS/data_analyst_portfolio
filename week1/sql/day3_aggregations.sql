@@ -1,5 +1,5 @@
--- 1. Total number of tranactions (invoices) count distinct invoices
-SELECT DISTINCT *
+-- 1. Total number of transactions (invoices) count distinct invoices
+SELECT COUNT(DISTINCT Invoice) as total_invoices
 FROM retail;
 
 -- 2. Total revenue across the entire datasets
@@ -10,16 +10,16 @@ FROM retail;
 SELECT 
 	StockCode,
 	Description,
-	Quantity * Price AS total_revenue
+	SUM(Quantity * Price) AS total_revenue
 FROM retail
+GROUP BY StockCode, Description
 ORDER BY total_revenue DESC
 LIMIT 10;
 
 -- 4. Revenue by country (top 10 countries) group by country
 SELECT 
-	Description,
 	Country,
-	Quantity * Price AS total_revenue
+	SUM(Quantity * Price AS total_revenue
 FROM retail
 GROUP BY Country
 ORDER BY total_revenue DESC
@@ -36,10 +36,12 @@ ORDER BY month;
 
 -- 6. Average basket size per invoice
 SELECT 
-	Invoice,
-	ROUND(AVG(Quantity), 2)AS basket_size
-FROM retail
-GROUP BY Invoice;
+	ROUND(AVG(basket_size), 2) AS avg_basket_size
+FROM (
+	SELECT Invoice, SUM(Quantity) as basket_size
+	FROM retial
+	GROUP BY Invoice
+);
 
 -- 7. Customer with more than $2,000 total spending
 SELECT 
@@ -73,7 +75,7 @@ FROM (
     FROM retail
     WHERE "Customer ID" IS NOT NULL
     GROUP BY "Customer ID"
-) AS customer_totals;
+);
 
 -- 10. Identify customers with negative or suspicious transactions
 SELECT 
@@ -94,9 +96,7 @@ SELECT
 	"Customer ID",
 	COUNT(DISTINCT Invoice) AS num_invoices,
 	SUM(Quantity * Price) AS total_revenue,
-	AVG(Quantity * Price ) AS avg_invoice_revenue,
-	MIN(InvoiceDate) AS first_purchase_2011,
-	MAX(InvoiceDate) AS last_purchase_2011
+	SUM(Quantity * Price ) / COUNT(DISTINCT Invoice) AS avg_invoice_value,
 FROM retail
 WHERE "Customer ID" IS NOT NULL
 	AND STRFTIME('%Y', InvoiceDate) = '2011'
